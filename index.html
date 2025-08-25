@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool Hub | Teleperformance</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins, Lato -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script>
+        // Custom Tailwind configuration (consistent with your other pages)
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Lato', 'sans-serif'],
+                        'heading': ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#5E56F8',
+                        'primary-hover': '#4338ca',
+                        'background': '#F7F8FC',
+                        'card': 'rgba(255, 255, 255, 0.9)',
+                        'text-primary': '#1A202C',
+                        'dark-primary': '#7F7AFF',
+                        'dark-primary-hover': '#9592FF',
+                        'dark-background': '#121212',
+                        'dark-card': 'rgba(26, 26, 26, 0.8)',
+                        'dark-text-primary': '#F7FAFC',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Basic animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .btn-glow { box-shadow: 0 0 15px 0px rgba(94, 86, 248, 0.4); }
+        .dark .btn-glow { box-shadow: 0 0 20px 2px rgba(127, 122, 255, 0.5); }
+    </style>
+</head>
+<body class="bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary font-sans antialiased">
+
+    <!-- Container for the entire page -->
+    <div class="flex flex-col items-center justify-center min-h-screen p-4">
+
+        <!-- Header Section -->
+        <header class="text-center mb-12 fade-in">
+            <img src="https://i.ibb.co/TxmWmdRd/image.png" alt="Logo" class="h-20 w-20 mx-auto mb-4 rounded-full shadow-lg" onerror="this.onerror=null;this.src='https://placehold.co/80x80/5E56F8/FFFFFF?text=TP';">
+            <h1 class="text-4xl sm:text-5xl font-extrabold font-heading tracking-tight">
+                Agent <span class="text-primary dark:text-dark-primary">Tool Hub</span>
+            </h1>
+            <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">Select a tool to get started.</p>
+        </header>
+
+        <!-- Main Navigation Buttons -->
+        <main class="w-full max-w-md">
+            <div class="space-y-6">
+                <!-- Button 1: CS Documentation Helper -->
+                <a href="cs_doc.html" class="fade-in group block w-full bg-card dark:bg-dark-card p-6 rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transform transition-all duration-300" style="animation-delay: 100ms;">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-primary/10 dark:bg-dark-primary/20 rounded-lg">
+                            <i class="fas fa-file-alt text-2xl text-primary dark:text-dark-primary"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold font-heading text-text-primary dark:text-dark-text-primary">CS Documentation Helper</h2>
+                            <p class="text-gray-500 dark:text-gray-400">Generate and manage documentation.</p>
+                        </div>
+                        <i class="fas fa-arrow-right text-gray-400 ml-auto transform transition-transform duration-300 group-hover:translate-x-1"></i>
+                    </div>
+                </a>
+
+                <!-- Button 2: Delay Calculator -->
+                <a href="delay_calc.html" class="fade-in group block w-full bg-card dark:bg-dark-card p-6 rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transform transition-all duration-300" style="animation-delay: 200ms;">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-primary/10 dark:bg-dark-primary/20 rounded-lg">
+                            <i class="fas fa-calculator text-2xl text-primary dark:text-dark-primary"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold font-heading text-text-primary dark:text-dark-text-primary">Delay Calculator</h2>
+                            <p class="text-gray-500 dark:text-gray-400">Calculate order and delivery delays.</p>
+                        </div>
+                        <i class="fas fa-arrow-right text-gray-400 ml-auto transform transition-transform duration-300 group-hover:translate-x-1"></i>
+                    </div>
+                </a>
+
+                <!-- Button 3: Late Owner Calculator -->
+                <a href="late_owner.html" class="fade-in group block w-full bg-card dark:bg-dark-card p-6 rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transform transition-all duration-300" style="animation-delay: 300ms;">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-primary/10 dark:bg-dark-primary/20 rounded-lg">
+                            <i class="fas fa-timeline text-2xl text-primary dark:text-dark-primary"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold font-heading text-text-primary dark:text-dark-text-primary">Late Owner Calculator</h2>
+                            <p class="text-gray-500 dark:text-gray-400">Generate delivery event timelines.</p>
+                        </div>
+                        <i class="fas fa-arrow-right text-gray-400 ml-auto transform transition-transform duration-300 group-hover:translate-x-1"></i>
+                    </div>
+                </a>
+            </div>
+        </main>
+
+        <!-- Theme Toggle Button -->
+        <div class="absolute top-4 right-4">
+             <button id="theme-toggle" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary transition-colors duration-300">
+                <svg id="theme-toggle-light-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <svg id="theme-toggle-dark-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const lightIcon = document.getElementById('theme-toggle-light-icon');
+            const darkIcon = document.getElementById('theme-toggle-dark-icon');
+
+            // Function to apply the theme
+            const applyTheme = (theme) => {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    lightIcon.classList.remove('hidden');
+                    darkIcon.classList.add('hidden');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    lightIcon.classList.add('hidden');
+                    darkIcon.classList.remove('hidden');
+                }
+            };
+
+            // Event listener for the toggle button
+            themeToggleBtn.addEventListener('click', () => {
+                const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+
+            // Check for saved theme in localStorage or user's system preference
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+        });
+    </script>
+</body>
+</html>

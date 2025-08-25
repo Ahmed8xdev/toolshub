@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS Documentation Helper | Teleperformance</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins, Lato, Caveat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Lato:wght@400;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+    <!-- Three.js for 3D background -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script>
+        // Custom Tailwind configuration
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Lato', 'sans-serif'],
+                        'heading': ['Poppins', 'sans-serif'],
+                        'handwriting': ['Caveat', 'cursive'],
+                    },
+                    colors: {
+                        'primary': '#5E56F8',
+                        'primary-hover': '#4338ca',
+                        'secondary': '#1A202C',
+                        'secondary-hover': '#2D3748',
+                        'background': '#F7F8FC',
+                        'card': 'rgba(255, 255, 255, 0.8)',
+                        'text-primary': '#1A202C',
+                        'text-secondary': '#718096',
+                        'border': '#E2E8F0',
+                        'dark-primary': '#7F7AFF',
+                        'dark-primary-hover': '#9592FF',
+                        'dark-secondary': '#E2E8F0',
+                        'dark-secondary-hover': '#F7FAFC',
+                        'dark-background': '#121212',
+                        'dark-card': 'rgba(26, 26, 26, 0.7)',
+                        'dark-text-primary': '#F7FAFC',
+                        'dark-text-secondary': '#A0AEC0',
+                        'dark-border': '#2D3748',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base styles and dynamic effects */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes glow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes aurora { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 15px 0px rgba(94, 86, 248, 0.4); } 50% { box-shadow: 0 0 30px 5px rgba(94, 86, 248, 0.6); } }
+        .dark .logo-glow { animation-name: pulse-glow-dark; }
+        @keyframes pulse-glow-dark { 0%, 100% { box-shadow: 0 0 15px 0px rgba(127, 122, 255, 0.4); } 50% { box-shadow: 0 0 30px 5px rgba(127, 122, 255, 0.6); } }
+        
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(125deg, #5E56F8, #a855f7, #D946EF, #f472b6);
+            background-size: 400% 400%;
+            animation: aurora 20s ease infinite; z-index: -2; opacity: 0.1;
+        }
+        .dark body::before { opacity: 0.15; }
+        
+        .animate-fadeInUp { animation: fadeInUp 0.6s ease-out forwards; }
+        .glass-card { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .logo-glow { border-radius: 9999px; animation: pulse-glow 4s infinite ease-in-out; }
+        .glowing-line {
+            height: 3px; width: 150px;
+            background: linear-gradient(90deg, transparent, #5E56F8, #D946EF, #5E56F8, transparent);
+            background-size: 200% 100%; animation: glow 4s linear infinite;
+        }
+        .dark .glowing-line { background: linear-gradient(90deg, transparent, #7F7AFF, #F472B6, #7F7AFF, transparent); background-size: 200% 100%; }
+
+        /* Custom styles for the application */
+        .action-btn {
+            padding: 0.5rem 0.875rem;
+            background-color: #4A5568; /* gray-700 */
+            color: white;
+            border: none;
+            border-radius: 0.375rem; /* rounded-md */
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+            position: relative;
+        }
+        .dark .action-btn { background-color: #A0AEC0; color: #1A202C; }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        
+        /* Flag specific colors */
+        .flag-red { background-color: #ef4444 !important; }
+        .flag-orange { background-color: #f97316 !important; }
+        .flag-green { background-color: #22c55e !important; }
+        .flag-red:hover { background-color: #dc2626 !important; }
+        .flag-orange:hover { background-color: #ea580c !important; }
+        .flag-green:hover { background-color: #16a34a !important; }
+        
+        /* Sidebar styles */
+        .quick-actions {
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform: translateX(105%);
+            right: 0;
+            width: 90vw;
+            max-width: 400px;
+        }
+        .quick-actions.visible {
+            transform: translateX(0);
+        }
+        
+        #sidebarHandle {
+            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        #sidebarHandle.toggled {
+            /* This value MUST match the max-width of the .quick-actions sidebar */
+            right: 400px;
+        }
+
+        /* On smaller screens, the sidebar width is 90vw. The handle must follow. */
+        /* The breakpoint is calculated as 400px / 0.9 = ~444px */
+        @media (max-width: 444px) {
+            #sidebarHandle.toggled {
+                right: 90vw;
+            }
+        }
+
+        /* Autocomplete */
+        .autocomplete-suggestions {
+            display: none;
+            position: absolute;
+            z-index: 1000;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .autocomplete-suggestion.selected { background-color: rgba(94, 86, 248, 0.1); }
+        .dark .autocomplete-suggestion.selected { background-color: rgba(127, 122, 255, 0.1); }
+        
+        /* Custom Modal for alerts/confirms */
+        #custom-modal-overlay, #custom-prompt-overlay {
+            transition: opacity 0.3s ease;
+        }
+
+        /* Spelling and Grammar error styles */
+        .spelling-error {
+            background-color: #ffdddd;
+            border-bottom: 1px dashed #ff4444;
+            cursor: pointer;
+        }
+        .grammar-error {
+            background-color: #ffffcc;
+            border-bottom: 1px dashed #ff9900;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-background text-text-primary dark:bg-dark-background dark:text-dark-text-primary font-sans antialiased overflow-x-hidden">
+    <!-- Back to Home Button -->
+    <a href="index.html" title="Back to Tool Hub" class="fixed top-4 right-4 z-[5000] h-7 w-7 bg-card dark:bg-dark-card rounded-full shadow-lg flex items-center justify-center text-primary dark:text-dark-primary hover:bg-gray-200 dark:hover:bg-gray-700 transform transition-all duration-300 hover:scale-110">
+        <i class="fas fa-arrow-left text-lg"></i>
+    </a>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Header -->
+    <header class="relative flex flex-wrap justify-between items-center gap-y-4 my-6 sm:my-8 px-4 sm:px-6 lg:px-8 animate-fadeInUp">
+        <div class="logo-glow">
+             <img src="https://i.ibb.co/TxmWmdRd/image.png" alt="Primary Logo" class="h-16 w-16 rounded-full shadow-lg" onerror="this.onerror=null;this.src='https://placehold.co/64x64/5E56F8/FFFFFF?text=TP';">
+        </div>
+        <div class="text-center order-first w-full sm:order-none sm:w-auto sm:flex-1">
+            <h1 class="text-2xl sm:text-3xl font-extrabold font-heading text-text-primary dark:text-dark-text-primary tracking-tight">
+                CS <span class="text-primary dark:text-dark-primary">Documentation</span> Helper
+            </h1>
+            <div class="glowing-line mt-3 mx-auto"></div>
+        </div>
+        <div>
+            <button id="theme-toggle" class="p-2 rounded-full text-text-secondary dark:text-dark-text-secondary hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary transition-transform duration-300">
+                <svg id="theme-toggle-light-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <svg id="theme-toggle-dark-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 pb-8 max-w-7xl relative z-10">
+        <div class="editor-section bg-card dark:bg-dark-card p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl glass-card animate-fadeInUp" style="animation-delay: 200ms;">
+            <h2 class="text-xl sm:text-2xl font-bold text-primary dark:text-dark-primary mb-4 border-b border-border dark:border-dark-border pb-3">Comment Editor</h2>
+            
+            <!-- Documentation Input -->
+            <div class="section-title font-semibold text-text-primary dark:text-dark-text-primary mb-2">Documentation: <span class="text-sm font-normal text-text-secondary dark:text-dark-text-secondary ml-2">(Try shortcuts like !refund or !delivery)</span></div>
+            <textarea id="documentationInput" placeholder="Enter your documentation here..." class="w-full h-48 p-3 bg-white/50 dark:bg-black/20 border border-border dark:border-dark-border rounded-lg focus:ring-2 focus:ring-primary dark:focus:ring-dark-primary focus:border-transparent outline-none transition"></textarea>
+            <div id="autocompleteList" class="autocomplete-suggestions bg-card dark:bg-dark-card border border-border dark:border-dark-border"></div>
+            
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mt-4">
+                <button id="generateBtn" class="w-full bg-primary hover:bg-primary-hover text-white font-bold py-2 px-3 rounded-lg transition shadow-md hover:shadow-lg text-sm sm:text-base"><i class="fas fa-eye mr-2"></i>Preview</button>
+                <button id="copyBtn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-3 rounded-lg transition shadow-md hover:shadow-lg text-sm sm:text-base"><i class="fas fa-copy mr-2"></i>Copy</button>
+                <button id="saveTemplateBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-3 rounded-lg transition shadow-md hover:shadow-lg text-sm sm:text-base"><i class="fas fa-save mr-2"></i>Save</button>
+                <button id="resetBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-3 rounded-lg transition shadow-md hover:shadow-lg text-sm sm:text-base"><i class="fas fa-undo mr-2"></i>Reset</button>
+            </div>
+            
+            <!-- Preview Section -->
+            <div id="previewSection" class="preview-section mt-6 p-4 border border-border dark:border-dark-border rounded-lg bg-background/50 dark:bg-dark-background/50 hidden">
+                <h3 class="text-lg font-bold text-primary dark:text-dark-primary mb-2">Preview:</h3>
+                <div id="previewContent" class="preview-content whitespace-pre-wrap font-sans leading-relaxed"></div>
+            </div>
+            
+            <!-- Templates & History -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div class="templates-section">
+                    <h3 class="text-lg font-bold text-primary dark:text-dark-primary mb-2"><i class="fas fa-bolt mr-2"></i>Smart Templates</h3>
+                    <div id="templatesList" class="space-y-2"></div>
+                </div>
+                <div class="history-section">
+                    <h3 class="text-lg font-bold text-primary dark:text-dark-primary mb-2"><i class="fas fa-history mr-2"></i>History & Search</h3>
+                    <input type="text" id="historySearch" placeholder="Search history..." class="w-full p-2 mb-2 bg-white/50 dark:bg-black/20 border border-border dark:border-dark-border rounded-md focus:ring-1 focus:ring-primary outline-none">
+                    <div id="historyList" class="space-y-1 max-h-48 overflow-y-auto"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Handle -->
+    <div id="sidebarHandle" class="sidebar-handle fixed top-1/2 -translate-y-1/2 w-8 h-24 bg-primary hover:bg-primary-hover text-white rounded-l-lg cursor-pointer flex items-center justify-center z-40 shadow-lg right-0">
+        <i class="fas fa-chevron-left"></i>
+    </div>
+
+    <!-- Quick Actions Sidebar -->
+    <div id="quickActions" class="quick-actions fixed top-24 h-[calc(100vh-130px)] bg-card dark:bg-dark-card p-4 rounded-l-2xl shadow-2xl glass-card border-l border-t border-b border-border dark:border-dark-border z-50 overflow-y-auto">
+        <div class="quick-actions-header mb-4">
+            <input type="text" id="quickActionsSearch" placeholder="Search actions..." class="w-2/3 p-2 bg-white/50 dark:bg-black/20 border border-border dark:border-dark-border rounded-md focus:ring-1 focus:ring-primary outline-none">
+            <button id="addQuickActionBtn" class="w-1/3 ml-2 bg-primary hover:bg-primary-hover text-white font-bold py-2 px-3 rounded-lg text-sm"><i class="fas fa-plus"></i> Add</button>
+        </div>
+        <!-- Sections will be dynamically populated here -->
+    </div>
+
+    <!-- Add/Edit Quick Action Modal -->
+    <div id="quickActionModal" class="fixed inset-0 bg-black/50 z-[100] hidden items-center justify-center p-4">
+        <div class="modal-content bg-background dark:bg-dark-background p-6 rounded-lg shadow-xl w-full max-w-md border border-border dark:border-dark-border">
+            <div class="modal-header flex justify-between items-center mb-4 pb-2 border-b dark:border-dark-border">
+                <h3 class="text-xl font-bold text-primary dark:text-dark-primary">Add New Quick Action</h3>
+                <span class="close-modal text-2xl cursor-pointer text-text-secondary hover:text-text-primary dark:hover:text-dark-text-primary">&times;</span>
+            </div>
+            <div class="form-group mb-4">
+                <label for="quickActionText" class="block mb-1 font-semibold text-text-primary dark:text-dark-text-primary">Action Text:</label>
+                <input type="text" id="quickActionText" placeholder="e.g., Customer Verified" class="w-full p-2 bg-white/80 dark:bg-black/20 border border-border dark:border-dark-border rounded-md">
+            </div>
+            <div class="form-group mb-4">
+                <label for="quickActionTooltip" class="block mb-1 font-semibold text-text-primary dark:text-dark-text-primary">Tooltip (optional):</label>
+                <input type="text" id="quickActionTooltip" placeholder="e.g., Marks customer as verified" class="w-full p-2 bg-white/80 dark:bg-black/20 border border-border dark:border-dark-border rounded-md">
+            </div>
+            <div class="form-group mb-4">
+                <label for="quickActionSection" class="block mb-1 font-semibold text-text-primary dark:text-dark-text-primary">Section:</label>
+                <select id="quickActionSection" class="w-full p-2 bg-white/80 dark:bg-black/20 border border-border dark:border-dark-border rounded-md"></select>
+            </div>
+            <div class="form-group mb-4">
+                <label for="quickActionColor" class="block mb-1 font-semibold text-text-primary dark:text-dark-text-primary">Color (optional):</label>
+                <select id="quickActionColor" class="w-full p-2 bg-white/80 dark:bg-black/20 border border-border dark:border-dark-border rounded-md">
+                    <option value="">Default</option>
+                    <option value="flag-red">Red</option>
+                    <option value="flag-orange">Orange</option>
+                    <option value="flag-green">Green</option>
+                </select>
+            </div>
+            <div class="modal-footer flex justify-end gap-4 mt-6">
+                <button id="cancelQuickActionBtn" class="py-2 px-4 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-text-primary dark:text-dark-text-primary font-bold rounded-lg">Cancel</button>
+                <button id="saveQuickActionBtn" class="py-2 px-4 bg-primary hover:bg-primary-hover text-white font-bold rounded-lg">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Alert/Confirm Modal -->
+    <div id="custom-modal-overlay" class="fixed inset-0 bg-black/60 z-[200] hidden items-center justify-center p-4 opacity-0">
+        <div id="custom-modal-box" class="bg-background dark:bg-dark-background p-6 rounded-lg shadow-xl w-full max-w-sm border border-border dark:border-dark-border text-center">
+            <p id="custom-modal-message" class="text-lg mb-6 text-text-primary dark:text-dark-text-primary"></p>
+            <div id="custom-modal-buttons" class="flex justify-center gap-4">
+                <button id="custom-modal-ok" class="py-2 px-6 bg-primary hover:bg-primary-hover text-white font-bold rounded-lg">OK</button>
+                <button id="custom-modal-confirm" class="py-2 px-6 bg-primary hover:bg-primary-hover text-white font-bold rounded-lg">Yes</button>
+                <button id="custom-modal-cancel" class="py-2 px-6 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-text-primary dark:text-dark-text-primary font-bold rounded-lg">No</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Prompt Modal -->
+    <div id="custom-prompt-overlay" class="fixed inset-0 bg-black/60 z-[200] hidden items-center justify-center p-4 opacity-0">
+        <div id="custom-prompt-box" class="bg-background dark:bg-dark-background p-6 rounded-lg shadow-xl w-full max-w-sm border border-border dark:border-dark-border">
+            <p id="custom-prompt-message" class="text-lg mb-4 text-text-primary dark:text-dark-text-primary"></p>
+            <input type="text" id="custom-prompt-input" class="w-full p-2 mb-4 bg-white/80 dark:bg-black/20 border border-border dark:border-dark-border rounded-md">
+            <div id="custom-prompt-buttons" class="flex justify-end gap-4">
+                <button id="custom-prompt-cancel" class="py-2 px-6 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-text-primary dark:text-dark-text-primary font-bold rounded-lg">Cancel</button>
+                <button id="custom-prompt-ok" class="py-2 px-6 bg-primary hover:bg-primary-hover text-white font-bold rounded-lg">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="flex flex-col sm:flex-row items-center justify-between mt-10 text-center animate-fadeInUp px-4 sm:px-6 lg:px-8 pb-6" style="animation-delay: 300ms;">
+        <div class="logo-glow">
+            <img src="https://i.ibb.co/WvcTtbST/image.png" alt="Secondary Logo" class="h-10" onerror="this.onerror=null;this.src='https://placehold.co/120x40/5E56F8/FFFFFF?text=Logo';">
+        </div>
+        <div class="font-handwriting text-xl text-text-secondary dark:text-dark-text-secondary mt-4 sm:mt-0">
+            <p>Designed by Omar & Ahmed </p>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 3D BACKGROUND & THEME LOGIC ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#bg-canvas'), alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.position.setZ(30);
+        const shapes = [];
+
+        function createShapes() {
+            shapes.forEach(s => scene.remove(s));
+            shapes.length = 0;
+            const isDark = document.documentElement.classList.contains('dark');
+            const color = isDark ? 0x7F7AFF : 0x5E56F8;
+            const material = new THREE.MeshBasicMaterial({ color: color, wireframe: true });
+            const geometries = [ new THREE.BoxGeometry(5, 5, 5), new THREE.TetrahedronGeometry(5), new THREE.OctahedronGeometry(5), new THREE.IcosahedronGeometry(5) ];
+            for (let i = 0; i < 40; i++) {
+                const geometry = geometries[Math.floor(Math.random() * geometries.length)];
+                const shape = new THREE.Mesh(geometry, material);
+                const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(100));
+                shape.position.set(x, y, z);
+                const [rx, ry, rz] = Array(3).fill().map(() => Math.random() * 0.005 - 0.0025);
+                shape.userData.rotation = { x: rx, y: ry, z: rz };
+                shapes.push(shape);
+                scene.add(shape);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            shapes.forEach(shape => {
+                shape.rotation.x += shape.userData.rotation.x;
+                shape.rotation.y += shape.userData.rotation.y;
+            });
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const lightIcon = document.getElementById('theme-toggle-light-icon');
+        const darkIcon = document.getElementById('theme-toggle-dark-icon');
+
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                lightIcon.classList.remove('hidden');
+                darkIcon.classList.add('hidden');
+            } else {
+                document.documentElement.classList.remove('dark');
+                lightIcon.classList.add('hidden');
+                darkIcon.classList.remove('hidden');
+            }
+            setTimeout(createShapes, 100);
+        };
+        
+        themeToggleBtn.addEventListener('click', () => {
+            const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+        createShapes();
+        animate();
+
+        // --- ORIGINAL APPLICATION LOGIC ---
+        
+        // Data structure for quick actions
+        let quickActionSections = [
+            { name: "Customer Flag", actions: [
+                { text: "Red Flag", tooltip: "Red Flag - High priority issue", color: "flag-red" },
+                { text: "Orange Flag", tooltip: "Orange Flag - Medium priority issue", color: "flag-orange" },
+                { text: "Green Flag", tooltip: "Green Flag - Low priority issue", color: "flag-green" }
+            ]},
+            { name: "Customer Type", actions: [
+                { text: "Default customer", tooltip: "Default customer" },
+                { text: "TPRO CST", tooltip: "TPRO Customer (TPRO CST)" },
+                { text: "VIP CST", tooltip: "VIP Customer (VIP CST)" }
+            ]},
+            { name: "Customer Inquiries", actions: [
+                 { text: "Complained about", tooltip: "Complained about" }, { text: "Late Delivery", tooltip: "Late Delivery" }, 
+                 { text: "Wrong order", tooltip: "Wrong order" }, { text: "Wrong item", tooltip: "Wrong item" }, 
+                 { text: "Missing item", tooltip: "Missing item" }, { text: "Expired", tooltip: "Expired" },
+                 { text: "Nearly Expired", tooltip: "Nearly Expired" }, { text: "Foreign object", tooltip: "Foreign object" }, 
+                 { text: "Cooking instruction not followed", tooltip: "Cooking instruction not followed" }, { text: "Poor packaging", tooltip: "Poor packaging" }, 
+                 { text: "Extra Amount Charged", tooltip: "Extra Amount Charged" }, { text: "Money collection issue", tooltip: "Money collection issue" },
+                 { text: "Order not delivered", tooltip: "Order not delivered" }, { text: "Order marked as delivered but didn't receive", tooltip: "Order marked as delivered but didn't receive" }, 
+                 { text: "Order not assigned to a rider", tooltip: "Order not assigned to a rider" }
+            ]},
+            { name: "Response Status", actions: [
+                { text: "Answered", tooltip: "Answered (ANS)" }, { text: "Not Answered", tooltip: "Not Answered" },
+                { text: "FU", tooltip: "Follow Up (FU)" }, { text: "WFA", tooltip: "Waiting for Answer (WFA)" },
+                { text: "BRB", tooltip: "Be Right Back (BRB)" }
+            ]},
+            { name: "Contacts", actions: [
+                { text: "Called RST", tooltip: "Called Restaurant (RST)"}, { text: "Called CST", tooltip: "Called Customer (CST)"},
+                { text: "CNA", tooltip: "Customer Not Answering (CNA)"}, { text: "Called ROP", tooltip: "Called Restaurant Operator (ROP)"},
+                { text: "Called Ven", tooltip: "Called Vendor (Ven)"}, { text: "Called Rider", tooltip: "Called Rider"},
+                { text: "RNA", tooltip: "Restaurant/Rider Not Answering (RNA)"}, { text: "RM", tooltip: "Rider Manager (RM)"},
+                { text: "AM", tooltip: "Account Manager (AM)"}, { text: "MCB", tooltip: "Manager Call Back (MCB)"},
+                { text: "Left note on Hurrier", tooltip: "Left note on Hurrier"}, { text: "Advice CST with Tracking Feature", tooltip: "Advice CST with Tracking Feature"}
+            ]},
+            { name: "Time/Delivery", actions: [
+                { text: "WDT", tooltip: "Within Delivery Time (WDT)" }, { text: "PDT", tooltip: "Promise Delivery Time (PDT)" },
+                { text: "DT", tooltip: "Delivery Time (DT)" }, { text: "ETA", tooltip: "Estimated Time Arrival (ETA)" },
+                { text: "ETA from to", tooltip: "ETA from XX to XX" }, { text: "OTW", tooltip: "On The Way (OTW)" },
+                { text: "ASAP", tooltip: "As Soon As Possible (ASAP)" }, { text: "Under Prep", tooltip: "Under Preparation (Under Prep)" },
+                { text: "Min", tooltip: "Minute(s) (Min)" }, { text: "Mins", tooltip: "Minutes (Mins)" },
+                { text: "H", tooltip: "Hour(s) (H)" }, { text: "Hrs", tooltip: "Hours (Hrs)" },
+                { text: "End Time +10 minutes", tooltip: "End Time +10 minutes" }, { text: "Order more than 50% from the delivery time", tooltip: "Order more than 50% from the delivery time" }
+            ]},
+            { name: "Actions", actions: [
+                { text: "Info", tooltip: "Informed (Info)" }, { text: "TC", tooltip: "Talabat Credit (TC)" },
+                { text: "R&V", tooltip: "Refund & Validation (R&V)" }, { text: "Not Eligible for PR", tooltip: "Not Eligible for Partial Refund (Not Eligible for PR)" },
+                { text: "OT", tooltip: "Offline Ticket (OT)" }, { text: "SLA", tooltip: "Service Level Agreement (SLA)" },
+                { text: "PR", tooltip: "Partial Refund (PR)" }, { text: "FR", tooltip: "Full Refund (FR)" },
+                { text: "App", tooltip: "Application (App)" }, { text: "Fill FORM", tooltip: "Fill FORM" },
+                { text: "Advice CST to wait", tooltip: "Advice CST to wait" }, { text: "Advice CST to place a new order", tooltip: "Advice CST to place a new order" }
+            ]},
+            { name: "Compensation", actions: [
+                { text: "Can not comp", tooltip: "Cannot compensate" }, { text: "Fraud detected", tooltip: "Fraud detected" },
+                { text: "Budget limit", tooltip: "Budget limit" }, { text: "Apply Comp", tooltip: "Apply Compensation" },
+                { text: "Comp before", tooltip: "Compensated before" }, { text: "Comp 0 amount", tooltip: "Compensation 0 amount" },
+                { text: "Exceeded 3 times capping", tooltip: "Exceeded 3 times capping" }, { text: "CST eligible for partial refund", tooltip: "CST eligible for partial refund" },
+                { text: "Less than threshold", tooltip: "Less than threshold" }, { text: "More than threshold", tooltip: "More than threshold" }
+            ]},
+            { name: "Documentation", actions: [
+                { text: "PIC", tooltip: "Picture (PIC)" }, { text: "SS", tooltip: "Screenshot (SS)" },
+                { text: "T&C", tooltip: "Terms & Conditions (T&C)" }, { text: "Msg", tooltip: "Message (Msg)" },
+                { text: "SMS", tooltip: "Short Message Service (SMS)" }, { text: "Num", tooltip: "Number (Num)" },
+                { text: "Acc", tooltip: "Account (Acc)" }, { text: "No PIN Code", tooltip: "No PIN Code" },
+                { text: "No Dispatche notes", tooltip: "No Dispatche notes" }, { text: "CST share correct address", tooltip: "CST share correct address" },
+                { text: "Rider not moving", tooltip: "Rider not moving" }, { text: "Completed for less than 20 min", tooltip: "Completed for less than 20 min" },
+                { text: "Completed for more than 20 min", tooltip: "Completed for more than 20 min" }, { text: "CST insist to cancel", tooltip: "CST insist to cancel" },
+                { text: "CST good history", tooltip: "CST good history" }, { text: "Package was sealed", tooltip: "Package was sealed" }
+            ]},
+            { name: "Personnel/Other", actions: [
+                { text: "SPV", tooltip: "Supervisor (SPV)" }, { text: "TL", tooltip: "Team Leader (TL)" },
+                { text: "SME", tooltip: "Subject Matter Expert (SME)" }, { text: "VP", tooltip: "Vendor Portal (VP)" },
+                { text: "Dr", tooltip: "Doctor (Dr)" }, { text: "HC", tooltip: "Hero Care (HC)" },
+                { text: "T2", tooltip: "Tier 2 (T2)" }, { text: "T3", tooltip: "Tier 3 (T3)" },
+                { text: "BOA", tooltip: "Backoffice (BOA)" }, { text: "CBH", tooltip: "Customer Bad History (CBH)" },
+                { text: "CGH", tooltip: "Customer Good History (CGH)" }, { text: "BL", tooltip: "Backlog (BL)" },
+                { text: "Rider status (Accepted)", tooltip: "Rider status (Accepted)" }, { text: "Rider status (Near pickup)", tooltip: "Rider status (Near pickup)" },
+                { text: "Rider status (Left pickup/Pickedup)", tooltip: "Rider status (Left pickup/Pickedup)" }, { text: "Rider status (Neardrop off)", tooltip: "Rider status (Neardrop off)" },
+                { text: "Hurrier status", tooltip: "Hurrier status" }, { text: "Order ready waiting for Rider", tooltip: "Order ready waiting for Rider" },
+                { text: "Rider said at RST waiting order", tooltip: "Rider said at RST waiting order" }, { text: "Rider said correct address", tooltip: "Rider said correct address" },
+                { text: "Rider said wrong address", tooltip: "Rider said wrong address" }, { text: "Asked him hurry up and call CST", tooltip: "Asked him hurry up and call CST" }
+            ]}
+        ];
+
+        const keywords = [
+            {term: 'Red Flag', hint: 'High priority issue'}, {term: 'Orange Flag', hint: 'Medium priority issue'}, {term: 'Green Flag', hint: 'Low priority issue'},
+            {term: 'Default customer', hint: ''}, {term: 'TPRO CST', hint: 'TPRO Customer'}, {term: 'VIP CST', hint: 'VIP Customer'},
+            {term: 'Complained about', hint: ''}, {term: 'Late Delivery', hint: ''}, {term: 'Wrong order', hint: ''}, {term: 'Wrong item', hint: ''},
+            {term: 'Missing item', hint: ''}, {term: 'Expired', hint: ''}, {term: 'Nearly Expired', hint: ''}, {term: 'Foreign object', hint: ''},
+            {term: 'Cooking instruction not followed', hint: ''}, {term: 'Poor packaging', hint: ''}, {term: 'Extra Amount Charged', hint: ''},
+            {term: 'Money collection issue', hint: ''}, {term: 'Order not delivered', hint: ''}, {term: 'Order marked as delivered but didn\'t receive', hint: ''},
+            {term: 'Order not assigned to a rider', hint: ''}, {term: 'RST', hint: 'Restaurant'}, {term: 'CST', hint: 'Customer'},
+            {term: 'CNA', hint: 'Customer Not Answering'}, {term: 'ROP', hint: 'Restaurant Operator'}, {term: 'Ven', hint: 'Vendor'},
+            {term: 'Rider', hint: ''}, {term: 'RNA', hint: 'Restaurant/Rider Not Answering'}, {term: 'RM', hint: 'Rider Manager'},
+            {term: 'AM', hint: 'Account Manager'}, {term: 'MCB', hint: 'Manager Call Back'}, {term: 'Left note on Hurrier', hint: ''},
+            {term: 'Advice CST with Tracking Feature', hint: ''}, {term: 'Answered', hint: 'ANS'}, {term: 'Not Answered', hint: ''},
+            {term: 'FU', hint: 'Follow Up'}, {term: 'WFA', hint: 'Waiting for Answer'}, {term: 'BRB', hint: 'Be Right Back'},
+            {term: 'Not Eligible for PR', hint: 'Not Eligible for Partial Refund'}, {term: 'WDT', hint: 'Within Delivery Time'},
+            {term: 'PDT', hint: 'Promise Delivery Time'}, {term: 'DT', hint: 'Delivery Time'}, {term: 'ETA', hint: 'Estimated Time Arrival'},
+            {term: 'ETA from to', hint: 'ETA from XX to XX'}, {term: 'OTW', hint: 'On The Way'}, {term: 'ASAP', hint: 'As Soon As Possible'},
+            {term: 'Under Prep', hint: 'Under Preparation'}, {term: 'Min', hint: 'Minute(s)'}, {term: 'Mins', hint: 'Minutes'},
+            {term: 'H', hint: 'Hour(s)'}, {term: 'Hrs', hint: 'Hours'}, {term: 'End Time +10 minutes', hint: ''},
+            {term: 'Order more than 50% from the delivery time', hint: ''}, {term: 'Info', hint: 'Informed'}, {term: 'TC', hint: 'Talabat Credit'},
+            {term: 'R&V', hint: 'Refund & Validation'}, {term: 'Comp', hint: 'Compensation'}, {term: 'OT', hint: 'Offline Ticket'},
+            {term: 'SLA', hint: 'Service Level Agreement'}, {term: 'PR', hint: 'Partial Refund'}, {term: 'FR', hint: 'Full Refund'},
+            {term: 'App', hint: 'Application'}, {term: 'Fill FORM', hint: ''}, {term: 'Advice CST to wait', hint: ''},
+            {term: 'Advice CST to place a new order', hint: ''}, {term: 'Can not comp', hint: 'Cannot compensate'}, {term: 'Fraud detected', hint: ''},
+            {term: 'Budget limit', hint: ''}, {term: 'Apply Comp', hint: 'Apply Compensation'}, {term: 'Comp before', hint: 'Compensated before'},
+            {term: 'Comp 0 amount', hint: 'Compensation 0 amount'}, {term: 'Exceeded 3 times capping', hint: ''}, {term: 'CST eligible for partial refund', hint: ''},
+            {term: 'Less than threshold', hint: ''}, {term: 'More than threshold', hint: ''}, {term: 'PIC', hint: 'Picture'},
+            {term: 'SS', hint: 'Screenshot'}, {term: 'T&C', hint: 'Terms & Conditions'}, {term: 'Msg', hint: 'Message'},
+            {term: 'SMS', hint: 'Short Message Service'}, {term: 'Num', hint: 'Number'}, {term: 'Acc', hint: 'Account'},
+            {term: 'No PIN Code', hint: ''}, {term: 'No Dispatche notes', hint: ''}, {term: 'CST share correct address', hint: ''},
+            {term: 'Rider not moving', hint: ''}, {term: 'Completed for less than 20 min', hint: ''}, {term: 'Completed for more than 20 min', hint: ''},
+            {term: 'CST insist to cancel', hint: ''}, {term: 'CST good history', hint: ''}, {term: 'Package was sealed', hint: ''},
+            {term: 'SPV', hint: 'Supervisor'}, {term: 'TL', hint: 'Team Leader'}, {term: 'SME', hint: 'Subject Matter Expert'},
+            {term: 'VP', hint: 'Vendor Portal'}, {term: 'Dr', hint: 'Doctor'}, {term: 'HC', hint: 'Hero Care'},
+            {term: 'T2', hint: 'Tier 2'}, {term: 'T3', hint: 'Tier 3'}, {term: 'BOA', hint: 'Backoffice'},
+            {term: 'CBH', hint: 'Customer Bad History'}, {term: 'CGH', hint: 'Customer Good History'}, {term: 'BL', hint: 'Backlog'},
+            {term: 'Rider status (Accepted)', hint: ''}, {term: 'Rider status (Near pickup)', hint: ''}, {term: 'Rider status (Left pickup/Pickedup)', hint: ''},
+            {term: 'Rider status (Neardrop off)', hint: ''}, {term: 'Hurrier status', hint: ''}, {term: 'Order ready waiting for Rider', hint: ''},
+            {term: 'Rider said at RST waiting order', hint: ''}, {term: 'Rider said correct address', hint: ''}, {term: 'Rider said wrong address', hint: ''},
+            {term: 'Asked him hurry up and call CST', hint: ''}
+        ];
+
+        const smartShortcuts = {
+            '!refund': 'Processed partial refund of [amount] as per policy. Customer notified via SMS.',
+            '!delivery': 'Order delayed by [time]. Contacted rider (RNA). Updated customer with new ETA: [time].',
+            '!complaint': 'Customer complained about [issue]. Apologized and offered [solution]. Case marked as [status].',
+            '!lateorder': 'CST complain about late order. Rider status: [status]. Informed CST with End Time +10 minutes. CST info.',
+        };
+
+        const commonMisspellings = [
+            'recieve', 'seperate', 'definately', 'occured', 'untill', 'wich', 
+            'accomodate', 'wich', 'alot', 'becuase', 'comming', 'existance',
+            'harrass', 'occassion', 'persue', 'refered', 'suprise', 'thier'
+        ];
+
+        const grammarIssues = [
+            { pattern: /\bI\s+promise\b/gi, suggestion: 'I will do my best' },
+            { pattern: /\bguarantee\b/gi, suggestion: 'assure' },
+            { pattern: /\bnever\b.*\bhappen\b/gi, suggestion: 'will do our best to prevent' },
+            { pattern: /\balways\b/gi, suggestion: 'often' },
+            { pattern: /\bperfect\b/gi, suggestion: 'good' }
+        ];
+        
+        let savedTemplates = [
+            { name: 'Complaint', content: 'Customer complained about [issue]. Apologized and offered [solution]. Case marked as [status].' },
+            { name: 'Refund', content: 'Processed [partial/full] refund of [amount] due to [reason]. Customer [satisfied/not satisfied].' },
+            { name: 'Delivery', content: 'Order #12345 delayed by [time]. Contacted rider (RNA). Updated customer with new ETA: [time].' },
+            { name: 'Late Order', content: 'CST complain about late order. Rider status: [status]. Informed CST with End Time +10 minutes. CST info.' },
+            { name: 'Not Delivered', content: 'Order marked as delivered but CST didn\'t receive. No PIN Code. Rider not moving (RNA). Advice CST to wait. CST info.' },
+            { name: 'Missing Item', content: 'CST complain about missing item [item]. Item amount [amount]. CST said package was sealed. [Less/More] than threshold. [Action taken]. CST info.' }
+        ];
+        let historyItems = [];
+        const MAX_HISTORY_ITEMS = 15;
+
+        // Page elements
+        const documentationInput = document.getElementById('documentationInput');
+        const autocompleteList = document.getElementById('autocompleteList');
+        const previewSection = document.getElementById('previewSection');
+        const previewContent = document.getElementById('previewContent');
+        const generateBtn = document.getElementById('generateBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const saveTemplateBtn = document.getElementById('saveTemplateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const templatesList = document.getElementById('templatesList');
+        const historyList = document.getElementById('historyList');
+        const historySearch = document.getElementById('historySearch');
+        const quickActionsContainer = document.getElementById('quickActions');
+        const quickActionsSearch = document.getElementById('quickActionsSearch');
+        const addQuickActionBtn = document.getElementById('addQuickActionBtn');
+        const sidebarHandle = document.getElementById('sidebarHandle');
+        
+        // Modal elements
+        const quickActionModal = document.getElementById('quickActionModal');
+        const closeModalBtn = quickActionModal.querySelector('.close-modal');
+        const cancelQuickActionBtn = document.getElementById('cancelQuickActionBtn');
+        const saveQuickActionBtn = document.getElementById('saveQuickActionBtn');
+        const quickActionText = document.getElementById('quickActionText');
+        const quickActionTooltip = document.getElementById('quickActionTooltip');
+        const quickActionSection = document.getElementById('quickActionSection');
+        const quickActionColor = document.getElementById('quickActionColor');
+
+        // Custom modal elements
+        const customModalOverlay = document.getElementById('custom-modal-overlay');
+        const customModalMessage = document.getElementById('custom-modal-message');
+        const customModalOk = document.getElementById('custom-modal-ok');
+        const customModalConfirm = document.getElementById('custom-modal-confirm');
+        const customModalCancel = document.getElementById('custom-modal-cancel');
+
+        // Custom prompt elements
+        const customPromptOverlay = document.getElementById('custom-prompt-overlay');
+        const customPromptMessage = document.getElementById('custom-prompt-message');
+        const customPromptInput = document.getElementById('custom-prompt-input');
+        const customPromptOk = document.getElementById('custom-prompt-ok');
+        const customPromptCancel = document.getElementById('custom-prompt-cancel');
+
+        let currentTextarea = documentationInput;
+        let currentSuggestions = [];
+        let selectedSuggestionIndex = -1;
+        let draggedSection = null;
+        let draggedAction = null;
+
+        // --- Custom Modal Functions ---
+        function showAlert(message, callback) {
+            customModalMessage.textContent = message;
+            customModalOk.style.display = 'inline-block';
+            customModalConfirm.style.display = 'none';
+            customModalCancel.style.display = 'none';
+            customModalOverlay.classList.remove('hidden');
+            setTimeout(() => customModalOverlay.style.opacity = '1', 10);
+
+            const okListener = () => {
+                hideModal(customModalOverlay);
+                if (callback) callback();
+                customModalOk.removeEventListener('click', okListener);
+            };
+            customModalOk.addEventListener('click', okListener);
+        }
+
+        function showConfirm(message, confirmCallback, cancelCallback) {
+            customModalMessage.textContent = message;
+            customModalOk.style.display = 'none';
+            customModalConfirm.style.display = 'inline-block';
+            customModalCancel.style.display = 'inline-block';
+            customModalOverlay.classList.remove('hidden');
+            setTimeout(() => customModalOverlay.style.opacity = '1', 10);
+
+            const confirmListener = () => {
+                hideModal(customModalOverlay);
+                if (confirmCallback) confirmCallback();
+                removeListeners();
+            };
+            const cancelListener = () => {
+                hideModal(customModalOverlay);
+                if (cancelCallback) cancelCallback();
+                removeListeners();
+            };
+            
+            function removeListeners() {
+                customModalConfirm.removeEventListener('click', confirmListener);
+                customModalCancel.removeEventListener('click', cancelListener);
+            }
+
+            customModalConfirm.addEventListener('click', confirmListener);
+            customModalCancel.addEventListener('click', cancelListener);
+        }
+
+        function showPrompt(message, callback) {
+            customPromptMessage.textContent = message;
+            customPromptInput.value = '';
+            customPromptOverlay.classList.remove('hidden');
+            setTimeout(() => {
+                customPromptOverlay.style.opacity = '1';
+                customPromptInput.focus();
+            }, 10);
+
+            const okListener = () => {
+                hideModal(customPromptOverlay);
+                if (callback) callback(customPromptInput.value);
+                removeListeners();
+            };
+            const cancelListener = () => {
+                hideModal(customPromptOverlay);
+                if (callback) callback(null); // Pass null on cancel
+                removeListeners();
+            };
+            
+            function removeListeners() {
+                customPromptOk.removeEventListener('click', okListener);
+                customPromptCancel.removeEventListener('click', cancelListener);
+            }
+
+            customPromptOk.addEventListener('click', okListener);
+            customPromptCancel.addEventListener('click', cancelListener);
+        }
+
+        function hideModal(modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+
+        // --- Initialization ---
+        function init() {
+            loadState();
+            renderQuickActions();
+            renderTemplates();
+            renderHistory();
+            setupEventListeners();
+        }
+
+        // --- State Management (Load/Save) ---
+        function loadState() {
+            const storedSections = localStorage.getItem('quickActionSections');
+            if (storedSections) {
+                try {
+                    const parsed = JSON.parse(storedSections);
+                    if (Array.isArray(parsed)) quickActionSections = parsed;
+                } catch(e) {
+                    console.error("Could not parse quick actions from localStorage", e);
+                }
+            }
+            
+            const storedTemplates = localStorage.getItem('savedTemplates');
+            if (storedTemplates) {
+                 try {
+                    const parsed = JSON.parse(storedTemplates);
+                    if (Array.isArray(parsed)) savedTemplates = parsed;
+                } catch(e) {
+                    console.error("Could not parse templates from localStorage", e);
+                }
+            }
+
+            const storedHistory = localStorage.getItem('documentationHistory');
+            if (storedHistory) {
+                 try {
+                    const parsed = JSON.parse(storedHistory);
+                    if (Array.isArray(parsed)) historyItems = parsed;
+                } catch(e) {
+                    console.error("Could not parse history from localStorage", e);
+                }
+            }
+        }
+        
+        function saveState(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        // --- Rendering Functions ---
+        function renderQuickActions() {
+            const header = quickActionsContainer.querySelector('.quick-actions-header');
+            quickActionsContainer.innerHTML = '';
+            if (header) quickActionsContainer.appendChild(header);
+            
+            quickActionSection.innerHTML = ''; // Clear dropdown in modal
+            
+            quickActionSections.forEach(section => {
+                const sectionGroup = document.createElement('div');
+                sectionGroup.className = 'section-group mb-4';
+                sectionGroup.dataset.section = section.name;
+
+                const sectionTitle = document.createElement('div');
+                sectionTitle.className = 'section-title font-bold text-lg text-text-primary dark:text-dark-text-primary mb-2 cursor-grab flex justify-between items-center p-2 rounded-md bg-black/5 dark:bg-white/5';
+                sectionTitle.draggable = true;
+                sectionTitle.innerHTML = `<span>${section.name}</span><i class="fas fa-grip-lines text-text-secondary dark:text-dark-text-secondary"></i>`;
+                
+                const actionButtonsContainer = document.createElement('div');
+                actionButtonsContainer.className = 'action-buttons flex flex-wrap gap-2';
+                
+                if (section.actions && Array.isArray(section.actions)) {
+                    section.actions.forEach(action => {
+                        actionButtonsContainer.appendChild(createActionButton(action));
+                    });
+                }
+
+                sectionGroup.appendChild(sectionTitle);
+                sectionGroup.appendChild(actionButtonsContainer);
+                quickActionsContainer.appendChild(sectionGroup);
+                
+                const option = document.createElement('option');
+                option.value = section.name;
+                option.textContent = section.name;
+                quickActionSection.appendChild(option);
+            });
+            setupDragAndDrop();
+        }
+
+        function createActionButton(action) {
+            const button = document.createElement('button');
+            button.className = 'action-btn';
+            if (action.color) button.classList.add(action.color);
+            button.textContent = action.text;
+            button.dataset.text = action.text;
+            if (action.tooltip) button.title = action.tooltip;
+            button.draggable = true;
+            return button;
+        }
+
+        function renderTemplates() {
+            templatesList.innerHTML = '';
+            savedTemplates.forEach((template, index) => {
+                const div = document.createElement('div');
+                div.className = 'template-item p-2 rounded-md hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer flex justify-between items-center';
+                div.innerHTML = `
+                    <span class="truncate pr-2">${template.name}: ${template.content}</span>
+                    <button class="delete-template text-red-500 hover:text-red-700 text-lg" data-index="${index}" title="Delete template">&times;</button>
+                `;
+                div.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('delete-template')) {
+                        e.stopPropagation();
+                        const templateIndex = e.target.dataset.index;
+                        showConfirm('Are you sure you want to delete this template?', () => {
+                            savedTemplates.splice(templateIndex, 1);
+                            saveState('savedTemplates', savedTemplates);
+                            renderTemplates();
+                        });
+                    } else {
+                        documentationInput.value = template.content;
+                        documentationInput.focus();
+                    }
+                });
+                templatesList.appendChild(div);
+            });
+        }
+
+        function renderHistory() {
+            const searchTerm = historySearch.value.toLowerCase();
+            const filteredHistory = historyItems.filter(item => item.toLowerCase().includes(searchTerm));
+            historyList.innerHTML = filteredHistory.map(item => `
+                <div class="history-item p-2 rounded-md hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer truncate" title="${item}">
+                    ${item}
+                </div>
+            `).join('');
+        }
+
+        // --- Event Listeners Setup ---
+        function setupEventListeners() {
+            documentationInput.addEventListener('input', handleInput);
+            documentationInput.addEventListener('keydown', handleKeyDown);
+            documentationInput.addEventListener('keyup', checkForShortcuts);
+            
+            generateBtn.addEventListener('click', generatePreview);
+            copyBtn.addEventListener('click', copyToClipboard);
+            saveTemplateBtn.addEventListener('click', saveAsTemplate);
+            resetBtn.addEventListener('click', resetDocumentation);
+            historySearch.addEventListener('input', renderHistory);
+            quickActionsSearch.addEventListener('input', filterQuickActions);
+
+            sidebarHandle.addEventListener('click', () => {
+                const sidebar = document.getElementById('quickActions');
+                sidebar.classList.toggle('visible');
+                sidebarHandle.classList.toggle('toggled');
+                sidebarHandle.querySelector('i').classList.toggle('fa-chevron-left');
+                sidebarHandle.querySelector('i').classList.toggle('fa-chevron-right');
+            });
+
+            addQuickActionBtn.addEventListener('click', () => quickActionModal.style.display = 'flex');
+            closeModalBtn.addEventListener('click', () => quickActionModal.style.display = 'none');
+            cancelQuickActionBtn.addEventListener('click', () => quickActionModal.style.display = 'none');
+            saveQuickActionBtn.addEventListener('click', saveQuickAction);
+            
+            document.body.addEventListener('click', e => {
+                if (e.target.closest('.action-btn')) handleActionButtonClick(e.target.closest('.action-btn'));
+                if (e.target.closest('.history-item')) {
+                    documentationInput.value = e.target.closest('.history-item').title;
+                    documentationInput.focus();
+                }
+                if (e.target.closest('.autocomplete-suggestion')) {
+                    insertSuggestion(e.target.closest('.autocomplete-suggestion').dataset.term);
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!autocompleteList.contains(e.target) && e.target !== documentationInput) {
+                    hideAutocomplete();
+                }
+            });
+        }
+
+        // --- Core Logic Functions ---
+        function handleActionButtonClick(btn) {
+            if (['generateBtn', 'copyBtn', 'saveTemplateBtn', 'resetBtn', 'addQuickActionBtn'].includes(btn.id)) return;
+            const textToAdd = btn.dataset.text;
+            const startPos = currentTextarea.selectionStart;
+            const endPos = currentTextarea.selectionEnd;
+            currentTextarea.value = currentTextarea.value.substring(0, startPos) + textToAdd + ' ' + currentTextarea.value.substring(endPos);
+            currentTextarea.focus();
+            currentTextarea.selectionStart = currentTextarea.selectionEnd = startPos + textToAdd.length + 1;
+        }
+
+        function saveQuickAction() {
+            const text = quickActionText.value.trim();
+            if (!text) {
+                showAlert('Please enter action text.');
+                return;
+            }
+            const newAction = {
+                text: text,
+                tooltip: quickActionTooltip.value.trim(),
+                color: quickActionColor.value,
+            };
+            const sectionName = quickActionSection.value;
+            const section = quickActionSections.find(s => s.name === sectionName);
+            if (section) {
+                section.actions.push(newAction);
+                saveState('quickActionSections', quickActionSections);
+                renderQuickActions();
+                quickActionModal.style.display = 'none';
+                quickActionText.value = '';
+                quickActionTooltip.value = '';
+            }
+        }
+
+        function copyToClipboard() {
+            const fullComment = documentationInput.value;
+            if (!fullComment) {
+                showAlert('Nothing to copy!');
+                return;
+            }
+            navigator.clipboard.writeText(fullComment).then(() => {
+                showAlert('Comment copied to clipboard!');
+                addToHistory(fullComment);
+            }).catch(err => {
+                showAlert('Failed to copy text.');
+            });
+        }
+        
+        function saveAsTemplate() {
+            const content = documentationInput.value.trim();
+            if (!content) {
+                showAlert('Please enter text to save as a template.');
+                return;
+            }
+            showPrompt('Enter a name for this template:', (name) => {
+                if (name) {
+                    savedTemplates.push({ name, content });
+                    saveState('savedTemplates', savedTemplates);
+                    renderTemplates();
+                    showAlert('Template saved!');
+                }
+            });
+        }
+
+        function resetDocumentation() {
+            showConfirm('Are you sure you want to clear the editor?', () => {
+                documentationInput.value = '';
+                previewSection.classList.add('hidden');
+                documentationInput.focus();
+            });
+        }
+        
+        function addToHistory(text) {
+            if (!text.trim()) return;
+            historyItems = historyItems.filter(item => item !== text);
+            historyItems.unshift(text);
+            if (historyItems.length > MAX_HISTORY_ITEMS) historyItems.pop();
+            saveState('documentationHistory', historyItems);
+            renderHistory();
+        }
+
+        function generatePreview() {
+            const text = documentationInput.value;
+            addToHistory(text);
+            
+            let previewText = text;
+            
+            // Check spelling
+            commonMisspellings.forEach(misspelling => {
+                const regex = new RegExp(`\\b${misspelling}\\b`, 'gi');
+                if (regex.test(text)) {
+                    previewText = previewText.replace(regex, match => 
+                        `<span class="spelling-error" title="Possible spelling error: ${misspelling}">${match}</span>`
+                    );
+                }
+            });
+            
+            // Check grammar
+            grammarIssues.forEach(issue => {
+                if (issue.pattern.test(text)) {
+                    previewText = previewText.replace(issue.pattern, match => 
+                        `<span class="grammar-error" title="Suggested: ${issue.suggestion}">${match}</span>`
+                    );
+                }
+            });
+            
+            previewContent.innerHTML = previewText;
+            previewSection.classList.remove('hidden');
+        }
+
+        // --- Autocomplete & Shortcuts ---
+        function handleInput(e) {
+            const cursorPos = e.target.selectionStart;
+            const textBeforeCursor = e.target.value.substring(0, cursorPos);
+            const lastWord = textBeforeCursor.split(/[\s,]+/).pop();
+            
+            if (lastWord.length > 0) {
+                currentSuggestions = keywords.filter(k => k.term.toLowerCase().startsWith(lastWord.toLowerCase()));
+                if (currentSuggestions.length > 0) showAutocomplete(currentSuggestions, e.target);
+                else hideAutocomplete();
+            } else {
+                hideAutocomplete();
+            }
+        }
+
+        function showAutocomplete(suggestions, textarea) {
+            autocompleteList.innerHTML = suggestions.map(item => `
+                <div class="autocomplete-suggestion p-2 cursor-pointer hover:bg-black/5 dark:hover:bg-white/5" data-term="${item.term}">
+                    <strong>${item.term}</strong>
+                    <span class="text-sm text-text-secondary dark:text-dark-text-secondary ml-2">${item.hint || ''}</span>
+                </div>
+            `).join('');
+            
+            const rect = textarea.getBoundingClientRect();
+            autocompleteList.style.display = 'block';
+            autocompleteList.style.top = `${rect.bottom + window.scrollY}px`;
+            autocompleteList.style.left = `${rect.left}px`;
+            autocompleteList.style.width = `${rect.width}px`;
+        }
+
+        function hideAutocomplete() {
+            autocompleteList.style.display = 'none';
+        }
+
+        function insertSuggestion(term) {
+            const value = currentTextarea.value;
+            const cursorPos = currentTextarea.selectionStart;
+            const textBeforeCursor = value.substring(0, cursorPos);
+            const lastWord = textBeforeCursor.split(/[\s,]+/).pop();
+            const wordStartPos = cursorPos - lastWord.length;
+            
+            currentTextarea.value = value.substring(0, wordStartPos) + term + ' ' + value.substring(cursorPos);
+            currentTextarea.focus();
+            currentTextarea.selectionStart = currentTextarea.selectionEnd = wordStartPos + term.length + 1;
+            hideAutocomplete();
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Tab' && autocompleteList.style.display === 'block') {
+                e.preventDefault();
+                if (currentSuggestions.length > 0) insertSuggestion(currentSuggestions[0].term);
+            }
+        }
+
+        function checkForShortcuts(e) {
+            if (e.key === ' ') {
+                const text = documentationInput.value;
+                const lastWord = text.substring(0, documentationInput.selectionStart).trim().split(/\s+/).pop();
+                if (smartShortcuts[lastWord]) {
+                    const wordStart = documentationInput.selectionStart - lastWord.length -1;
+                    documentationInput.value = text.substring(0, wordStart) + smartShortcuts[lastWord] + text.substring(documentationInput.selectionStart);
+                    documentationInput.selectionStart = documentationInput.selectionEnd = wordStart + smartShortcuts[lastWord].length;
+                }
+            }
+        }
+        
+        // --- Drag and Drop ---
+        function setupDragAndDrop() {
+            quickActionsContainer.addEventListener('dragstart', e => {
+                if (e.target.classList.contains('section-title')) {
+                    draggedSection = e.target.parentElement;
+                    setTimeout(() => draggedSection.style.opacity = '0.5', 0);
+                }
+            });
+
+            quickActionsContainer.addEventListener('dragend', () => {
+                if (draggedSection) draggedSection.style.opacity = '1';
+                draggedSection = null;
+                document.querySelectorAll('.drag-placeholder').forEach(p => p.remove());
+            });
+
+            quickActionsContainer.addEventListener('dragover', e => {
+                e.preventDefault();
+                if (draggedSection) {
+                    const afterElement = getDragAfterElement(quickActionsContainer, e.clientY, '.section-group');
+                    const placeholder = getOrCreatePlaceholder();
+                    if (afterElement == null) {
+                        quickActionsContainer.appendChild(placeholder);
+                    } else {
+                        quickActionsContainer.insertBefore(placeholder, afterElement);
+                    }
+                }
+            });
+            
+            quickActionsContainer.addEventListener('drop', e => {
+                e.preventDefault();
+                if (draggedSection) {
+                    const placeholder = document.querySelector('.drag-placeholder');
+                    if (placeholder) {
+                        placeholder.parentNode.insertBefore(draggedSection, placeholder);
+                        placeholder.remove();
+                        updateSectionOrder();
+                    }
+                }
+            });
+        }
+        
+        function getOrCreatePlaceholder() {
+            let placeholder = document.createElement('div');
+            placeholder.className = 'drag-placeholder';
+            return placeholder;
+        }
+
+        function getDragAfterElement(container, y, selector) {
+            const draggableElements = [...container.querySelectorAll(`${selector}:not([style*="opacity: 0.5"])`)];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+        
+        function updateSectionOrder() {
+            const newOrder = [];
+            quickActionsContainer.querySelectorAll('.section-group').forEach(group => {
+                const sectionName = group.dataset.section;
+                const sectionData = quickActionSections.find(s => s.name === sectionName);
+                if (sectionData) newOrder.push(sectionData);
+            });
+            quickActionSections = newOrder;
+            saveState('quickActionSections', quickActionSections);
+        }
+
+        function filterQuickActions() {
+            const searchTerm = quickActionsSearch.value.toLowerCase();
+            quickActionsContainer.querySelectorAll('.section-group').forEach(section => {
+                let sectionVisible = false;
+                section.querySelectorAll('.action-btn').forEach(button => {
+                    const match = button.dataset.text.toLowerCase().includes(searchTerm);
+                    button.style.display = match ? '' : 'none';
+                    if (match) sectionVisible = true;
+                });
+                section.style.display = sectionVisible ? '' : 'none';
+            });
+        }
+
+        // --- Initial call ---
+        init();
+    });
+    </script>
+</body>
+</html>
