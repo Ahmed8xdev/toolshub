@@ -12,8 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Three.js for 3D graphics -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Custom Tailwind configuration (consistent with your other pages)
+        // Custom Tailwind configuration
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -44,12 +46,30 @@
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
         .btn-glow { box-shadow: 0 0 15px 0px rgba(94, 86, 248, 0.4); }
         .dark .btn-glow { box-shadow: 0 0 20px 2px rgba(127, 122, 255, 0.5); }
+
+        /* Style for the 3D background canvas */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Place it behind all other content */
+        }
+        /* Ensure content is on top of the canvas */
+        .content-container {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 </head>
 <body class="bg-background dark:bg-dark-background text-text-primary dark:text-dark-text-primary font-sans antialiased">
 
-    <!-- Container for the entire page -->
-    <div class="flex flex-col items-center justify-center min-h-screen p-4">
+    <!-- Canvas for the 3D background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Container for the entire page content -->
+    <div class="content-container flex flex-col items-center justify-center min-h-screen p-4">
 
         <!-- Header Section -->
         <header class="text-center mb-12 fade-in">
@@ -117,12 +137,12 @@
     </div>
 
     <script>
+        // --- THEME TOGGLE LOGIC ---
         document.addEventListener('DOMContentLoaded', () => {
             const themeToggleBtn = document.getElementById('theme-toggle');
             const lightIcon = document.getElementById('theme-toggle-light-icon');
             const darkIcon = document.getElementById('theme-toggle-dark-icon');
 
-            // Function to apply the theme
             const applyTheme = (theme) => {
                 if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
@@ -133,20 +153,153 @@
                     lightIcon.classList.add('hidden');
                     darkIcon.classList.remove('hidden');
                 }
+                // Notify the 3D scene of the theme change
+                if (window.update3DTheme) {
+                    window.update3DTheme(theme);
+                }
             };
 
-            // Event listener for the toggle button
             themeToggleBtn.addEventListener('click', () => {
                 const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
                 localStorage.setItem('theme', newTheme);
                 applyTheme(newTheme);
             });
 
-            // Check for saved theme in localStorage or user's system preference
             const savedTheme = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+            const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+            applyTheme(initialTheme);
         });
+
+        // --- THREE.JS 3D BACKGROUND LOGIC ---
+        const canvas = document.getElementById('bg-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        camera.position.z = 5;
+
+        let textMesh, particlesMesh;
+
+        // --- THEME-AWARE COLOR CONFIG ---
+        const themeColors = {
+            light: {
+                background: 0xF7F8FC,
+                text: 0x1A202C,
+                particles: 0x5E56F8,
+                light1: 0x5E56F8,
+                light2: 0x4338ca,
+            },
+            dark: {
+                background: 0x121212,
+                text: 0xF7FAFC,
+                particles: 0x7F7AFF,
+                light1: 0x7F7AFF,
+                light2: 0x9592FF,
+            }
+        };
+
+        // --- 3D OBJECTS ---
+        const fontLoader = new THREE.FontLoader();
+        fontLoader.load(
+            'https://threejs.org/examples/fonts/helvetiker_bold.typeface.json',
+            (font) => {
+                const textGeometry = new THREE.TextGeometry('TP', {
+                    font: font, size: 1.2, height: 0.3, curveSegments: 12,
+                    bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.02, bevelSegments: 5
+                });
+                textGeometry.computeBoundingBox();
+                // Center the text geometry
+                const textCenterOffset = -0.5 * (textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x);
+                textGeometry.translate(textCenterOffset, -0.6, 0);
+
+                const textMaterial = new THREE.MeshStandardMaterial({ metalness: 0.8, roughness: 0.3 });
+                textMesh = new THREE.Mesh(textGeometry, textMaterial);
+                // Position text to the left
+                textMesh.position.x = -window.innerWidth / window.innerHeight * 2.5;
+                scene.add(textMesh);
+            }
+        );
+
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 5000;
+        const posArray = new Float32Array(particlesCount * 3);
+        for (let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 12;
+        }
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({ size: 0.01, transparent: true });
+        particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        // --- LIGHTING ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const light1 = new THREE.PointLight(0xffffff, 1.0, 100);
+        scene.add(light1);
+        const light2 = new THREE.PointLight(0xffffff, 1.0, 100);
+        scene.add(light2);
+
+        // --- THEME UPDATE FUNCTION ---
+        window.update3DTheme = (theme) => {
+            const colors = themeColors[theme];
+            renderer.setClearColor(colors.background, 1);
+            if (textMesh) textMesh.material.color.setHex(colors.text);
+            if (particlesMesh) {
+                particlesMesh.material.color.setHex(colors.particles);
+                // **FIX:** Adjust blending for better visibility on light/dark backgrounds
+                if (theme === 'dark') {
+                    particlesMesh.material.blending = THREE.AdditiveBlending;
+                } else {
+                    particlesMesh.material.blending = THREE.NormalBlending;
+                }
+            }
+            light1.color.setHex(colors.light1);
+            light2.color.setHex(colors.light2);
+        };
+        
+        // --- ANIMATION LOOP ---
+        const clock = new THREE.Clock();
+        function animate() {
+            const elapsedTime = clock.getElapsedTime();
+            if (textMesh) {
+                // **MODIFICATION:** Oscillate back and forth (right and left) up to ~45 degrees
+                const rotationAngle = (Math.PI / 4) * Math.sin(elapsedTime * 0.8);
+                textMesh.rotation.y = rotationAngle;
+                textMesh.rotation.z = 0; // Ensure no other rotation
+            }
+            particlesMesh.rotation.y = -elapsedTime * 0.1;
+
+            light1.position.x = Math.sin(elapsedTime * 0.7) * 4;
+            light1.position.y = Math.cos(elapsedTime * 0.5) * 4;
+            light1.position.z = Math.cos(elapsedTime * 0.3) * 4;
+
+            light2.position.x = Math.cos(elapsedTime * 0.3) * -4;
+            light2.position.y = Math.sin(elapsedTime * 0.5) * -4;
+            light2.position.z = Math.sin(elapsedTime * 0.7) * 4;
+
+            renderer.render(scene, camera);
+            window.requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- WINDOW RESIZE HANDLER ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            if(textMesh) {
+                textMesh.position.x = -window.innerWidth / window.innerHeight * 2.5;
+            }
+        });
+        
+        // Set initial theme for the 3D scene
+        const initialTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        window.update3DTheme(initialTheme);
+
     </script>
 </body>
 </html>
