@@ -159,6 +159,7 @@
             cursor: pointer;
         }
     </style>
+    <script src="./escape-html.js"></script>
 </head>
 <body class="bg-background text-text-primary dark:bg-dark-background dark:text-dark-text-primary font-sans antialiased overflow-x-hidden">
     <!-- Back to Home Button -->
@@ -730,7 +731,7 @@
                 const sectionTitle = document.createElement('div');
                 sectionTitle.className = 'section-title font-bold text-lg text-text-primary dark:text-dark-text-primary mb-2 cursor-grab flex justify-between items-center p-2 rounded-md bg-black/5 dark:bg-white/5';
                 sectionTitle.draggable = true;
-                sectionTitle.innerHTML = `<span>${section.name}</span><i class="fas fa-grip-lines text-text-secondary dark:text-dark-text-secondary"></i>`;
+                sectionTitle.innerHTML = `<span>${escapeHtml(section.name)}</span><i class="fas fa-grip-lines text-text-secondary dark:text-dark-text-secondary"></i>`;
                 
                 const actionButtonsContainer = document.createElement('div');
                 actionButtonsContainer.className = 'action-buttons flex flex-wrap gap-2';
@@ -770,7 +771,7 @@
                 const div = document.createElement('div');
                 div.className = 'template-item p-2 rounded-md hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer flex justify-between items-center';
                 div.innerHTML = `
-                    <span class="truncate pr-2">${template.name}: ${template.content}</span>
+                    <span class="truncate pr-2">${escapeHtml(template.name)}: ${escapeHtml(template.content)}</span>
                     <button class="delete-template text-red-500 hover:text-red-700 text-lg" data-index="${index}" title="Delete template">&times;</button>
                 `;
                 div.addEventListener('click', (e) => {
@@ -795,8 +796,8 @@
             const searchTerm = historySearch.value.toLowerCase();
             const filteredHistory = historyItems.filter(item => item.toLowerCase().includes(searchTerm));
             historyList.innerHTML = filteredHistory.map(item => `
-                <div class="history-item p-2 rounded-md hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer truncate" title="${item}">
-                    ${item}
+                <div class="history-item p-2 rounded-md hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer truncate" title="${escapeHtml(item)}">
+                    ${escapeHtml(item)}
                 </div>
             `).join('');
         }
@@ -930,7 +931,7 @@
             const text = documentationInput.value;
             addToHistory(text);
             
-            let previewText = text;
+            let previewText = escapeHtml(text);
             
             // Check spelling
             commonMisspellings.forEach(misspelling => {
@@ -972,9 +973,9 @@
 
         function showAutocomplete(suggestions, textarea) {
             autocompleteList.innerHTML = suggestions.map(item => `
-                <div class="autocomplete-suggestion p-2 cursor-pointer hover:bg-black/5 dark:hover:bg-white/5" data-term="${item.term}">
-                    <strong>${item.term}</strong>
-                    <span class="text-sm text-text-secondary dark:text-dark-text-secondary ml-2">${item.hint || ''}</span>
+                <div class="autocomplete-suggestion p-2 cursor-pointer hover:bg-black/5 dark:hover:bg-white/5" data-term="${escapeHtml(item.term)}">
+                    <strong>${escapeHtml(item.term)}</strong>
+                    <span class="text-sm text-text-secondary dark:text-dark-text-secondary ml-2">${escapeHtml(item.hint || '')}</span>
                 </div>
             `).join('');
             
