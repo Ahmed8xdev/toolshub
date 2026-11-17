@@ -684,7 +684,7 @@
             if (storedSections) {
                 try {
                     const parsed = JSON.parse(storedSections);
-                    if (Array.isArray(parsed)) quickActionSections = parsed;
+                    if (Array.isArray(parsed) && parsed.every(section => section && typeof section.name === 'string' && Array.isArray(section.actions) && section.actions.every(action => action && typeof action.text === 'string' && (!action.tooltip || typeof action.tooltip === 'string') && (!action.color || typeof action.color === 'string')))) quickActionSections = parsed;
                 } catch(e) {
                     console.error("Could not parse quick actions from localStorage", e);
                 }
@@ -694,7 +694,7 @@
             if (storedTemplates) {
                  try {
                     const parsed = JSON.parse(storedTemplates);
-                    if (Array.isArray(parsed)) savedTemplates = parsed;
+                    if (Array.isArray(parsed) && parsed.every(template => template && typeof template.name === 'string' && typeof template.content === 'string')) savedTemplates = parsed;
                 } catch(e) {
                     console.error("Could not parse templates from localStorage", e);
                 }
@@ -704,7 +704,7 @@
             if (storedHistory) {
                  try {
                     const parsed = JSON.parse(storedHistory);
-                    if (Array.isArray(parsed)) historyItems = parsed;
+                    if (Array.isArray(parsed) && parsed.every(item => typeof item === 'string')) historyItems = parsed;
                 } catch(e) {
                     console.error("Could not parse history from localStorage", e);
                 }
