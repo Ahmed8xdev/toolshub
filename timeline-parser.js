@@ -1,9 +1,11 @@
 /* Strict parsing for copy-pasted rider timeline rows; never invent events. */
 function normalizeClock(hourRaw, minuteRaw, periodRaw) {
+  if (!/^\d{1,2}$/.test(String(hourRaw)) || !/^\d{2}$/.test(String(minuteRaw)) ||
+      !/^(AM|PM)$/i.test(String(periodRaw))) return null;
   const hour = Number(hourRaw), minute = Number(minuteRaw);
-  const period = periodRaw.toUpperCase();
+  const period = String(periodRaw).toUpperCase();
   if (!Number.isInteger(hour) || hour < 1 || hour > 12 ||
-      !Number.isInteger(minute) || minute > 59) return null;
+      !Number.isInteger(minute) || minute < 0 || minute > 59) return null;
   return hour + ':' + String(minute).padStart(2, '0') + ' ' + period;
 }
 
