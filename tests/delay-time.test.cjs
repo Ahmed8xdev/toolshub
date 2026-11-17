@@ -28,3 +28,13 @@ test('delivery estimates no longer accept partial numeric strings or blanks',()=
  assert.ok(src.includes('!orderDeliveryInput.value.trim()'));
  assert.ok(src.includes('deliveryMins < 0'));
 });
+
+test('named month inputs reject unknown months and invalid day overflow',()=>{
+ assert.equal(parseTime('Fak 19, 2025 05:18 PM'),null);
+ assert.equal(parseTime('Feb 31, 2025 05:18 PM'),null);
+ assert.equal(parseTime('February 29, 2024 12:00 AM').getDate(),29);
+ assert.equal(parseTime('February 29, 2025 12:00 AM'),null);
+ assert.equal(parseTime('Apr 19, 2025 13:01 PM'),null);
+ assert.equal(parseTime('Apr 19, 2025 10:60 PM'),null);
+ assert.equal(parseTime('September 3, 2025 9:08 AM').getMonth(),8);
+});
