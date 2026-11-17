@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
-const {parseMainTimeline,parseAdditionalTimeline}=require('../timeline-parser.js');
+const {parseMainTimeline,parseAdditionalTimeline,normalizeClock}=require('../timeline-parser.js');
 test('main timeline preserves actual input events and order',()=>{
  const data=parseMainTimeline('1:59 AM **Scheduled**\n4:07 AM **Queued**\n4:08 AM **Accepted**');
  assert.deepEqual(data.parsedData,[{time:'1:59 AM',event:'Scheduled'},{time:'4:07 AM',event:'Queued'},{time:'4:08 AM',event:'Accepted'}]);
@@ -21,4 +21,12 @@ test('UI connects the real parser and never invents cancellation reasons',()=>{
  assert.ok(source.includes('parseAdditionalTimeline(text)'));
  assert.ok(source.includes('timeline-parser.js'));
  assert.ok(!source.includes('Math.random() * reasons.length'));
+});
+
+test('direct clock validation rejects invalid minutes, periods, and nonnumeric components',()=>{
+ assert.equal(normalizeClock('1','-1','AM'),null);
+ assert.equal(normalizeClock('2','00','XX'),null);
+ assert.equal(normalizeClock('2','00',null),null);
+ assert.equal(normalizeClock('2','1.5','AM'),null);
+ assert.equal(normalizeClock('12','05','pm'),'12:05 PM');
 });
