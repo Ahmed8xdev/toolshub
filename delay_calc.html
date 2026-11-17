@@ -400,21 +400,32 @@
         calculateBtn.addEventListener('click', calculateDelay);
 
         function parseTime(input) {
-            let match = input.match(/(\d{2})\.(\d{2})\.(\d{4}),\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+            const match = /^(\d{2})\.(\d{2})\.(\d{4}),\s*(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(input);
             if (match) {
                 const [, day, month, year, hour, minute, period] = match;
-                return new Date(`${year}-${month}-${day} ${hour}:${minute} ${period}`);
+                const d = Number(day), m = Number(month), y = Number(year);
+                const h = Number(hour), min = Number(minute);
+                if (h < 1 || h > 12 || min > 59 || m < 1 || m > 12) return null;
+                const hour24 = (h % 12) + (period.toUpperCase() === 'PM' ? 12 : 0);
+                const result = new Date(y, m - 1, d, hour24, min);
+                // JavaScript otherwise normalizes impossible dates (31 February).
+                if (result.getFullYear() !== y || result.getMonth() !== m - 1 ||
+                    result.getDate() !== d) return null;
+                return result;
             }
-            if (Date.parse(input)) { return new Date(input); }
-            return null;
+            // Allow the alternative 'Apr 19, 2025 05:18 PM' input format.
+            if (!/^[A-Za-z]{3,9}\s+\d{1,2},\s+\d{4}\s+\d{1,2}:\d{2}\s*(AM|PM)$/i.test(input)) return null;
+            const parsed = new Date(input);
+            return Number.isFinite(parsed.getTime()) ? parsed : null;
         }
 
         function calculateDelay() {
             const chatTime = parseTime(chatStartInput.value.trim());
             const orderTime = parseTime(orderPlacingInput.value.trim());
-            const deliveryMins = parseFloat(orderDeliveryInput.value);
+            const deliveryMins = Number(orderDeliveryInput.value);
 
-            if (!chatTime || !orderTime || isNaN(deliveryMins)) {
+            if (!chatTime || !orderTime || !orderDeliveryInput.value.trim() ||
+                !Number.isFinite(deliveryMins) || deliveryMins < 0) {
                 resultDiv.textContent = "Invalid input. Please check all fields.";
                 resultDiv.style.backgroundColor = "#ef4444";
                 resultDiv.classList.remove('hidden');
