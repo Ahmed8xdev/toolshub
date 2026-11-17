@@ -157,6 +157,7 @@
         .dark .modal-close { color: #A0AEC0; }
         .cancellation-pop { animation: popFade 0.7s cubic-bezier(0.23, 1, 0.32, 1); }
     </style>
+    <script src="./timeline-parser.js"></script>
 </head>
 <body class="bg-background text-text-primary dark:bg-dark-background dark:text-dark-text-primary font-sans antialiased">
     <!-- Back to Home Button -->
@@ -488,13 +489,11 @@
             }, 5000);
         }
 
-        // NOTE: The full, complex parsing logic from your original script should be placed here.
-        // For demonstration, simplified placeholder functions are used.
         function parseMainTimelineData(text) {
-             return { parsedData: [{time: "1:59 AM", event: "Scheduled"}, {time: "4:07 AM", event: "Queued"}] };
+            return parseMainTimeline(text);
         }
         function parseAdditionalTimelineData(text) {
-            return [{event: "Ordered at", time: "1:50 AM"}];
+            return parseAdditionalTimeline(text);
         }
         function displayResults(mainData, additionalData) {
             elements['result-body'].innerHTML = '';
@@ -518,9 +517,9 @@
                 showToast('Cancellation Reason: Unprofessional Behaviour');
                 return;
             }
-            const reasons = ["Lack of Delivery Men", "Preparation Delay", "Late Delivery", "Rider Unreachable"];
-            const reason = reasons[Math.floor(Math.random() * reasons.length)];
-            showToast(`Cancellation Reason: ${reason}`);
+            // Timeline data alone cannot establish a contractual cancellation
+            // reason. A random assignment would mislead operational staff.
+            showToast('Cancellation reason not determined from the timeline. Verify against your order policy.');
         }
     });
     </script>
