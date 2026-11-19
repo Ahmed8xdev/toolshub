@@ -679,8 +679,19 @@
         }
 
         // --- State Management (Load/Save) ---
+        // Browsers may deny storage access (privacy settings, sandboxed contexts,
+        // or disabled cookies). The editor must remain usable in memory.
+        function readSavedState(key) {
+            try {
+                return localStorage.getItem(key);
+            } catch (error) {
+                console.warn('Saved state is unavailable; using in-memory defaults', error);
+                return null;
+            }
+        }
+
         function loadState() {
-            const storedSections = localStorage.getItem('quickActionSections');
+            const storedSections = readSavedState('quickActionSections');
             if (storedSections) {
                 try {
                     const parsed = JSON.parse(storedSections);
@@ -690,7 +701,7 @@
                 }
             }
             
-            const storedTemplates = localStorage.getItem('savedTemplates');
+            const storedTemplates = readSavedState('savedTemplates');
             if (storedTemplates) {
                  try {
                     const parsed = JSON.parse(storedTemplates);
@@ -700,7 +711,7 @@
                 }
             }
 
-            const storedHistory = localStorage.getItem('documentationHistory');
+            const storedHistory = readSavedState('documentationHistory');
             if (storedHistory) {
                  try {
                     const parsed = JSON.parse(storedHistory);
@@ -712,7 +723,12 @@
         }
         
         function saveState(key, data) {
-            localStorage.setItem(key, JSON.stringify(data));
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch (error) {
+                // QuotaExceededError and SecurityError must not interrupt editing.
+                console.warn('Unable to persist saved state; changes remain in memory', error);
+            }
         }
 
         // --- Rendering Functions ---
