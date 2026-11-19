@@ -364,7 +364,7 @@
         
         // Theme preferences are optional: restricted storage must never stop tool initialization.
         const readThemePreference = () => {
-            try { return window.readThemePreference(); } catch { return null; }
+            try { return window.localStorage.getItem('theme'); } catch { return null; }
         };
         const writeThemePreference = (theme) => {
             try { window.localStorage.setItem('theme', theme); } catch { /* Keep the in-memory theme. */ }
