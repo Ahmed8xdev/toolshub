@@ -24,7 +24,7 @@ for (const page of ['index.html', 'late_owner.html', 'cs_doc.html']) {
     const c = create({ localStorage: { getItem: () => null, setItem: () => { throw Error('QuotaExceededError'); } } });
     assert.doesNotThrow(() => c.writeThemePreference('dark'));
     assert.equal(c.readThemePreference(), null);
-    assert.match(source, /writeThemePreference\\(newTheme\\)/);
-    assert.doesNotMatch(source, /(?<!\.)localStorage\.getItem\('theme'\)/);
+    assert.ok(source.includes("writeThemePreference(newTheme)"));
+    assert.ok(!source.replaceAll("window.localStorage.getItem(\'theme\')", "").includes("localStorage.getItem(\'theme\')"));
   });
 }
