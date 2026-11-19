@@ -10,7 +10,7 @@ for (const page of ['index.html', 'late_owner.html', 'cs_doc.html']) {
   test(page + ' gracefully handles denied and full browser storage', () => {
     assert.ok(start > -1 && end > start);
     const create = window => Function('window', source.slice(start, end) +
-      '\\nreturn { readThemePreference, writeThemePreference };')(window);
+      '\nreturn { readThemePreference, writeThemePreference };')(window);
     const blocked = {};
     Object.defineProperty(blocked, 'localStorage', { get() { throw Error('SecurityError'); } });
     const a = create(blocked);
@@ -25,6 +25,6 @@ for (const page of ['index.html', 'late_owner.html', 'cs_doc.html']) {
     assert.doesNotThrow(() => c.writeThemePreference('dark'));
     assert.equal(c.readThemePreference(), null);
     assert.match(source, /writeThemePreference\\(newTheme\\)/);
-    assert.doesNotMatch(source, /(?<!\\.)localStorage\\.getItem\\('theme'\\)/);
+    assert.doesNotMatch(source, /(?<!\.)localStorage\.getItem\('theme'\)/);
   });
 }
