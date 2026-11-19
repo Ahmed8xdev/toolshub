@@ -362,6 +362,13 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
         
+        // Theme preferences are optional: restricted storage must never stop tool initialization.
+        const readThemePreference = () => {
+            try { return window.localStorage.getItem('theme'); } catch { return null; }
+        };
+        const writeThemePreference = (theme) => {
+            try { window.localStorage.setItem('theme', theme); } catch { /* Keep the in-memory theme. */ }
+        };
         const themeToggleBtn = document.getElementById('theme-toggle');
         const lightIcon = document.getElementById('theme-toggle-light-icon');
         const darkIcon = document.getElementById('theme-toggle-dark-icon');
@@ -380,12 +387,12 @@
         
         themeToggleBtn.addEventListener('click', () => {
             const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
-            localStorage.setItem('theme', newTheme);
+            writeThemePreference(newTheme);
             applyTheme(newTheme);
             themeToggleBtn.style.transform = `rotate(${newTheme === 'dark' ? 180 : 0}deg)`;
         });
 
-        const savedTheme = localStorage.getItem('theme');
+        const savedTheme = readThemePreference();
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
         createShapes();

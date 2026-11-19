@@ -138,6 +138,13 @@
 
     <script>
         // --- THEME TOGGLE LOGIC ---
+        // Theme preferences are optional: restricted storage must never stop tool initialization.
+        const readThemePreference = () => {
+            try { return window.localStorage.getItem('theme'); } catch { return null; }
+        };
+        const writeThemePreference = (theme) => {
+            try { window.localStorage.setItem('theme', theme); } catch { /* Keep the in-memory theme. */ }
+        };
         document.addEventListener('DOMContentLoaded', () => {
             const themeToggleBtn = document.getElementById('theme-toggle');
             const lightIcon = document.getElementById('theme-toggle-light-icon');
@@ -161,11 +168,11 @@
 
             themeToggleBtn.addEventListener('click', () => {
                 const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
-                localStorage.setItem('theme', newTheme);
+                writeThemePreference(newTheme);
                 applyTheme(newTheme);
             });
 
-            const savedTheme = localStorage.getItem('theme');
+            const savedTheme = readThemePreference();
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
             applyTheme(initialTheme);
@@ -297,7 +304,7 @@
         });
         
         // Set initial theme for the 3D scene
-        const initialTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        const initialTheme = readThemePreference() || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         window.update3DTheme(initialTheme);
 
     </script>
