@@ -38,3 +38,23 @@ test('named month inputs reject unknown months and invalid day overflow',()=>{
  assert.equal(parseTime('Apr 19, 2025 10:60 PM'),null);
  assert.equal(parseTime('September 3, 2025 9:08 AM').getMonth(),8);
 });
+
+test('exactly zero lateness is on time, not delayed, and overflow is rejected',()=>{
+ const start=src.indexOf('        function calculateDelay() {');
+ const end=src.indexOf('\n\n        window.resetFormFields',start);
+ assert.ok(start>0 && end>start);
+ const body=src.slice(start,end);
+ function execute(deliveryValue,chatValue,orderValue){
+  const result={textContent:'',style:{},classList:{remove(){}}};
+  const calculation=Function('chatStartInput','orderPlacingInput','orderDeliveryInput','resultDiv','parseTime',
+    body+'\nreturn calculateDelay;')(
+      {value:chatValue},{value:orderValue},{value:deliveryValue},result,parseTime
+    );
+  calculation();
+  return result.textContent;
+ }
+ const same='21.01.2025, 05:10 PM';
+ assert.match(execute('0',same,same),/On Time: No delay/);
+ assert.doesNotMatch(execute('0',same,same),/Delayed by/);
+ assert.match(execute(String(Number.MAX_VALUE),same,same),/Invalid input/);
+});
