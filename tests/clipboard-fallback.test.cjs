@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const source=fs.readFileSync(path.join(__dirname,'../cs_doc.html'),'utf8');
 const start=source.indexOf('        function copyToClipboard() {');
-const end=source.indexOf('\n\n        function saveAsTemplate()',start);
+const end=source.indexOf('        function saveAsTemplate()',start);
 assert.ok(start>=0&&end>start);
 const getFunction=Function('documentationInput','navigator','showAlert','addToHistory',source.slice(start,end)+'\nreturn copyToClipboard;');
 
