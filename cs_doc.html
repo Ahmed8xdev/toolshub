@@ -817,10 +817,12 @@
 
         function renderHistory() {
             const searchTerm = historySearch.value.toLowerCase();
-            const filteredHistory = historyItems.filter(item => item.toLowerCase().includes(searchTerm));
-            historyList.innerHTML = filteredHistory.map(item => `
-                <div class="history-item p-2 rounded-md hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer truncate" title="${escapeHtml(item)}">
-                    ${escapeHtml(item)}
+            const filteredHistory = historyItems
+                .map((text, index) => ({ text, index }))
+                .filter(({ text }) => text.toLowerCase().includes(searchTerm));
+            historyList.innerHTML = filteredHistory.map(({ text, index }) => `
+                <div class="history-item p-2 rounded-md hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer truncate" data-history-index="${index}" title="${escapeHtml(text)}">
+                    ${escapeHtml(text)}
                 </div>
             `).join('');
         }
@@ -854,8 +856,12 @@
             document.body.addEventListener('click', e => {
                 if (e.target.closest('.action-btn')) handleActionButtonClick(e.target.closest('.action-btn'));
                 if (e.target.closest('.history-item')) {
-                    documentationInput.value = e.target.closest('.history-item').title;
-                    documentationInput.focus();
+                    const index = Number(e.target.closest('.history-item').dataset.historyIndex);
+                    if (Number.isSafeInteger(index) && index >= 0 && typeof historyItems[index] === 'string') {
+                        // DOM title attributes are presentation, not lossless storage.
+                        documentationInput.value = historyItems[index];
+                        documentationInput.focus();
+                    }
                 }
                 if (e.target.closest('.autocomplete-suggestion')) {
                     insertSuggestion(e.target.closest('.autocomplete-suggestion').dataset.term);
