@@ -780,7 +780,11 @@
         function createActionButton(action) {
             const button = document.createElement('button');
             button.className = 'action-btn';
-            if (action.color) button.classList.add(action.color);
+            // Stored actions may contain malformed or untrusted class values.
+            // classList.add throws on whitespace; only apply supported flag colors.
+            if (['flag-red', 'flag-orange', 'flag-green'].includes(action.color)) {
+                button.classList.add(action.color);
+            }
             button.textContent = action.text;
             button.dataset.text = action.text;
             if (action.tooltip) button.title = action.tooltip;
