@@ -448,7 +448,8 @@
             const deliveryMins = Number(orderDeliveryInput.value);
 
             if (!chatTime || !orderTime || !orderDeliveryInput.value.trim() ||
-                !Number.isFinite(deliveryMins) || deliveryMins < 0) {
+                !Number.isFinite(deliveryMins) || deliveryMins < 0 ||
+                !Number.isFinite(deliveryMins * 60 * 1000)) {
                 resultDiv.textContent = "Invalid input. Please check all fields.";
                 resultDiv.style.backgroundColor = "#ef4444";
                 resultDiv.classList.remove('hidden');
@@ -456,11 +457,19 @@
             }
 
             const actualDeliveryTime = new Date(orderTime.getTime() + deliveryMins * 60 * 1000);
+            if (!Number.isFinite(actualDeliveryTime.getTime())) {
+                resultDiv.textContent = "Invalid input. Please check all fields.";
+                resultDiv.style.backgroundColor = "#ef4444";
+                resultDiv.classList.remove('hidden');
+                return;
+            }
             const delay = (chatTime - actualDeliveryTime) / (1000 * 60);
 
             let status = "", color = "";
-            if (delay < 0) {
-                status = `✔ On Time: No delay (${Math.abs(delay).toFixed(0)} mins early)`;
+            if (delay <= 0) {
+                status = delay === 0
+                    ? "✔ On Time: No delay"
+                    : `✔ On Time: No delay (${Math.abs(delay).toFixed(0)} mins early)`;
                 color = "#22c55e";
             } else {
                 status = `⚠ Delayed by ${delay.toFixed(0)} minutes`;
