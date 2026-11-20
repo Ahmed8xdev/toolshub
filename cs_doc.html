@@ -919,12 +919,20 @@
                 showAlert('Nothing to copy!');
                 return;
             }
+            const selectForManualCopy = () => {
+                documentationInput.focus();
+                documentationInput.select();
+                showAlert('Clipboard access is unavailable. Your text is selected; press Ctrl+C (or Cmd+C) to copy it.');
+            };
+            // navigator.clipboard may be missing in insecure or restricted contexts.
+            if (!navigator.clipboard?.writeText) {
+                selectForManualCopy();
+                return;
+            }
             navigator.clipboard.writeText(fullComment).then(() => {
                 showAlert('Comment copied to clipboard!');
                 addToHistory(fullComment);
-            }).catch(err => {
-                showAlert('Failed to copy text.');
-            });
+            }).catch(() => selectForManualCopy());
         }
         
         function saveAsTemplate() {
