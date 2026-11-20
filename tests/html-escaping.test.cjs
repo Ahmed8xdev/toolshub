@@ -18,7 +18,7 @@ test('encodes quote characters used in HTML attributes',()=>{
 test('all dynamic HTML injection points now encode user data',()=>{
   for(const expected of [
    'escapeHtml(section.name)', 'escapeHtml(template.name)',
-   'escapeHtml(template.content)','escapeHtml(item)', 'escapeHtml(item.term)',
+   'escapeHtml(template.content)','escapeHtml(text)', 'escapeHtml(item.term)',
    "escapeHtml(item.hint || '')", 'let previewText = escapeHtml(text);'
   ]) assert.ok(page.includes(expected), 'Missing encoding: '+expected);
   assert.ok(page.includes('<script src="./escape-html.js"></script>'));
